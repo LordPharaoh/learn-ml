@@ -80,21 +80,38 @@ class Training_Set:
 			batch.append(get_example(i + rand))
 		return batch
 				
-def gradient(hypothesis, training_set, feature=-1, batch=0):
-	if batch == 0:
-		batch = training_set.size()
+#TODO gradient can be optimized by taking it once, multiplying by each feature, and then returning the whole thing 
+def gradient(training_set, hypothesis, feature, examples):
+	"""Return the gradient of a number of examples in the training set with a given hypothesis function.
+	
+	Keyword Arguments:
+	training_set -- the training set
+	hypothesis -- the prediction function. Should take in a list of inputs and return a prediction.
+	feature -- the feature number 
+	examples -- a list of examples in the training set to try it on; e.g. [1, 3, 7] will try it on the 1st, 3rd, and 7th training examples
+	Gradient 
+		The sum of the difference of the predicted value (hypothesis) and the actual output (y) muliplied by the value of the input feature.
+		j = iteration value of the sum
+		i = feature
+		sum((h(x[j]) - y[j]) * x[j][i])
+
+	>>> ts = ml.generate_training_set(lambda x: 4 * x, 10, -10, 10, 0)
+	>>> hypothesis = lambda x: 3 * x[0]
+	>>> ml.gradient(ts, hypothesis, 0, range(ts.size() - 1))
+	-17.937881085209728
+	>>> hypothesis = lambda x: 4 * x[0]
+	>>> ml.gradient(ts, hypothesis, 0, range(ts.size() - 1))
+	0.0
+
+	"""
+
 	total = 0
-	if batch == training_set.size():
-		for i in range(training_set.size() - 1):
-			grad = hypothesis(training_set.get_input(i)) - training_set.get_output(i)
-			if feature == -1:
-				total += grad
-			else:
-				total += (grad * training_set.get_input_feature(i, feature))
-	else:
-		for i in training_set.get_batch(batch):
-			total += hypothesis(i.get_all_inputs()) - i.get_output() 
-	return (total/batch)
+	for i in examples:
+		training_set.get_example(i)
+		grad = hypothesis(training_set.get_input(i)) - training_set.get_output(i)
+		total += (grad * training_set.get_input_feature(i, feature))
+	#don't divide by zero, the answer will be 0 anyway, just divide by one
+	return (total/max(len(examples), 1))
 
 def mult_sum(list1, list2):
 	total = 0
