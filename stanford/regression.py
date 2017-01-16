@@ -9,6 +9,12 @@ def lms_error(training_set, hypothesis):
 		total += (hypothesis(training_set.get_input(i)) - training_set.get_output(i)) ** 2
 	return total / (2 * training_set.size())
 
+"""Requirements for weight functions
+A function which takes two arguments: an x value and a feature number
+The function should return a float weight value
+
+A weight function generator should return such a function
+"""
 def locally_weighted(x, bandwidth, step_size=.01):
 	"""Returns a weight function for a given x input and a bandwidth.
 	
@@ -21,18 +27,53 @@ def locally_weighted(x, bandwidth, step_size=.01):
 	feature -- feature number being tested
 	"""
 	weight = lambda xi, feature: exp((-(xi[feature] - x[feature])**2)/(2*bandwidth**2))
-	return lambda training_set, hypothesis, i, examples: ml.gradient(training_set, hypothesis, i, examples, step_size, weight)
+	return weight
 
 def constant_weight(*args):
 	return 1
 
-def batch_gradient_descent(step_size=.01):
-	return lambda training_set, hypothesis, i, examples: ml.gradient(training_set, hypothesis, i, examples, step_size, constant_weight)
-	
-def linear(training_set, 
+"""Requirements for descent functions
+Take four arguments: training_set, hypothesis, feature number, and a numerical list of examples.
+Return a float change value.
+
+A descent function generator should return such a function.
+"""
+
+def batch_gradient_descent(step_size=.01, weight=constant_weight,):
+	"""Returns batch gradient descent function with given step size
+	The gradient function accepts a training set, hypothesis function, a feature, and a list of number examples
+	"""
+	return lambda training_set, hypothesis, i, examples: -ml.gradient(training_set, hypothesis, i, examples, step_size, weight)
+
+def batch_gradient_ascent(step_size=.01, weight=constant_weight,):
+	"""Returns batch gradient descent function with given step size
+	The gradient function accepts a training set, hypothesis function, a feature, and a list of number examples
+	"""
+	return lambda training_set, hypothesis, i, examples: ml.gradient(training_set, hypothesis, i, examples, step_size, weight)
+
+"""Requirements for regression type functions:
+Take an argument of two lists, the first list a set of parameters and the second list a set of input variables.
+Use these two lists to perform some function and return a single float.
+"""
+
+def linear(list1, list2):
+	"""Linear hp(x), multiplies a list of parameters and a list of inputs together"""
+	total = 0 
+	for l1, l2 in zip(list1, list2):
+		total += l1 * l2
+	return total
+
+def logistic(list1, list2):
+	"""Logistic hp(x), do the linear thing and then exp that. (exp(lin)) / (exp(lin)+1)"""
+	explin = exp(-1 * linear(list1, list2))
+	return (explin / (explin + 1))
+
+#TODO batch should be part of batch_gradient_descent, not general regression
+def general(training_set, 
 			num_steps=100, 
 			batch=50,
 			update_rule=batch_gradient_descent(),
+			regression_function=linear,
 			log_level=ml.NORMAL, 
 			log_frequency=100):
 	"""Returns a function that accepts a list of inputs and returns a predicted output in accord with given data
@@ -43,26 +84,15 @@ def linear(training_set,
 	batch -- size of batch to train with each time
 	update_rule -- function derivative of cost with weight or step size
 		has to take four arguments: the training set, the function hypothesis, the feature number, and a list of example numbers to train with
+	regression_function -- function to regress: e.g. linear, logistic. Function accepts a list of params and a list of inputs and returns a float output
 	log_level -- amount of stuff to log
 	log_frequency -- will log every log_frequency steps
-	>>> ts = ml.generate_training_set(lambda x: 4 * x, 10, -10, 10, 0)
-	>>> function = regression.linear(ts)
-	>>> function([2])
-	7.999999999999996
-	>>> function([7])
-	27.999999999999986
-	>>> 
-	>>> ts = ml.generate_training_set(lambda x, y: 4 * x + y, 10, -10, 10, 0)
-	>>> function = regression.linear(ts)
-	>>> function([3, 4])
-	15.999999999884412
-	>>> 
 	"""
 	#TODO doesn't handly intercepts properly, padding ones doesn't work
 	#training_set.pad_ones()
 	params = [0] * training_set.get_num_features()
 
-	hypothesis = lambda x: ml.mult_sum(params, x)
+	hypothesis = lambda x: regression_function(params, x)
 	for step in range(num_steps):
 
 		#get a batch of random training examples to train with
@@ -73,9 +103,10 @@ def linear(training_set,
 
 		for i in range(training_set.get_num_features()):
 			#update gradient
-			params[i] -= update_rule(training_set, hypothesis, i, examples)
+			#always addition, update rule should return the correct sign
+			params[i] += update_rule(training_set, hypothesis, i, examples)
 
-		hypothesis = lambda x: ml.mult_sum(params, x)
+		hypothesis = lambda x: regression_function(params, x)
 
 		#log stuff
 		if step % log_frequency == 0:

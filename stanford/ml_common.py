@@ -33,7 +33,7 @@ class Training_Example:
 	def pad_one(self):
 		self.x.insert(0, 1)
 	def __str__(self):
-		return ("in:" + str(self.get_input()) + " out:" + self.get_output())
+		return (str(self.get_all_inputs()) + " " + str(self.get_output()))
 class Training_Set:
 	#should be a list of training examples
 	def __init__(self, x):
@@ -71,6 +71,11 @@ class Training_Set:
 	#plot one dimension
 	def plot(self, num, symbol="b*"):
 		plt.plot(self.get_plottable_input(num), self.get_plottable_output(), symbol)
+	def __str__(self):
+		stb = ""
+		for i in self.examples:
+			stb += str(i) + ";"
+		return stb
 	def get_batch(self, num):
 		batch = []
 		rand = randint(0, training_set.size() - 1)
@@ -115,32 +120,42 @@ def gradient(training_set, hypothesis, feature, examples, step_size, weight_func
 	#don't divide by zero, the answer will be 0 anyway, just divide by one
 	return (total/max(len(examples), 1))
 
-def mult_sum(list1, list2):
-	total = 0
-	for l1, l2 in zip(list1, list2):
-		total += l1 * l2
-	return total
-
 def generate_training_set(function, num_points, low=1, high=100, variance = .05):
+	"""Return a training set of a specific function
+
+	Arguments:
+	function -- function to generate, can take any number of args and returns a float
+	num_points -- number of points to generate
+	low -- low bound
+	high -- high bound
+	variance -- randomness in the data
+
+	NOT SUITABLE FOR DOCTEST, CONTAINS RANDOM DATA
+	!>>> ts = ml.generate_training_set(lambda x: 4*x, 3, -10, 10, variance=0) 
+	!>>> str(ts)
+	'[5.664584629276554] 22.658338517106216;[-0.16071175241091495] -0.6428470096436598;[-8.627610821082763] -34.51044328433105;'
+	"""
 	num_features = function.__code__.co_argcount	
 	ts = Training_Set([])
 	for i in range(num_points):
 		x = []
 		for f in range(num_features):
 			x.append(random.uniform(low, high))
-		y = function(*x) + random.uniform(-variance * num_points / num_features, variance * num_points / num_features);
+		y = function(*x) + random.uniform(-variance * (num_points / num_features), variance * (num_points / num_features));
 		ts.add(Training_Example(x, y))
 	return ts
 
 def mean(numbers):
 	return (float(sum(numbers)) / max(len(numbers), 1))
 
+#TODO plot_hypothesis and plot_function are super similar and should be one thing
 def plot_hypothesis(equation, low=1, high=100, scale=1, symbol="r-"):
 	x = []
 	y = []
 	num_features = equation.__code__.co_argcount
-	for i in range(high - low):
-		x.append((i + low) / scale)
+	times = round(((high - low) / scale))
+	for i in range(times):
+		x.append(i * scale + low)
 		y.append(equation([x[-1]]))
 	plt.plot(x, y, symbol)
 	
@@ -148,8 +163,8 @@ def plot_function(equation, low=1, high=100, scale=1, symbol="r-"):
 	x = []
 	y = []
 	num_features = equation.__code__.co_argcount
-	for i in range(high - low):
-		x.append((i + low) / scale)
+	for i in range(round((high - low)/scale)):
+		x.append(i * scale + low)
 		y.append(equation(x[-1]))
 	plt.plot(x, y, symbol)
 
