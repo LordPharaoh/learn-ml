@@ -9,6 +9,45 @@ def lms_error(training_set, hypothesis):
 		total += (hypothesis(training_set.get_input(i)) - training_set.get_output(i)) ** 2
 	return total / (2 * training_set.size())
 
+#TODO gradient can be optimized by taking it once, multiplying by each feature, and then returning the whole thing as a list
+#contd. Getting the mean of the whole thing seemed to work, but it may give bad results with large training sets and small batch sizes
+#so basically have an option to return a list of gradients for all features, this will be faster too
+def gradient(training_set, hypothesis, feature, examples, step_size, weight_function=lambda xi, feature: 1):
+    """Return the gradient of a number of examples in the training set with a given hypothesis function, step size, and weight.
+    
+    Keyword Arguments:
+    training_set -- the training set
+    hypothesis -- the prediction function. Should take in a list of inputs and return a prediction.
+    feature -- the feature number 
+    examples -- a list of examples in the training set to try it on; e.g. [1, 3, 7] will try it on the 1st, 3rd, and 7th training examples
+    step_size -- constant to reduce the gradient by
+    weight_function -- weight test points, change for locally weighted regression and other stuff
+    Gradient 
+        The sum of the difference of the predicted value (hypothesis) and the actual output (y) muliplied by the value of the input feature.                                    
+        j = iteration value of the sum
+        i = feature
+        sum((h(x[j]) - y[j]) * x[j][i]) * weight * step_size
+	>>> import regression
+    >>> ts = ml.TrainingSet.generate(lambda x: 4*x, 10, -10, 10, variance=0)
+    >>> hypothesis = lambda x: 3 * x[0]
+    >>> regression.gradient(ts, hypothesis, 0, range(ts.size() - 1), .1)
+    -3.4423139184132863
+    >>> hypothesis = lambda x: 4 * x[0]
+    >>> regression.gradient(ts, hypothesis, 0, range(ts.size() - 1), .1)
+    0.0
+    >>> 
+    """
+    
+    total = 0
+    for i in examples:
+        grad = hypothesis(training_set.get_input(i)) - training_set.get_output(i)
+        total += (grad * training_set.get_input_feature(i, feature) * weight_function(training_set.get_input(i), feature) * step_size)
+    #don't divide by zero, the answer will be 0 anyway, just divide by one
+    return (total/max(len(examples), 1))
+    
+
+
+
 """Requirements for weight functions
 A function which takes two arguments: an x value and a feature number
 The function should return a float weight value
@@ -43,24 +82,24 @@ def batch_gradient_descent(step_size=.01, weight=constant_weight,):
 	"""Returns batch gradient descent function with given step size
 	The gradient function accepts a training set, hypothesis function, a feature, and a list of number examples
 	"""
-	return lambda training_set, hypothesis, i, examples: -ml.gradient(training_set, hypothesis, i, examples, step_size, weight)
+	return lambda training_set, hypothesis, i, examples: -gradient(training_set, hypothesis, i, examples, step_size, weight)
 
 def batch_gradient_ascent(step_size=.01, weight=constant_weight,):
 	"""Returns batch gradient descent function with given step size
 	The gradient function accepts a training set, hypothesis function, a feature, and a list of number examples
 	"""
-	return lambda training_set, hypothesis, i, examples: ml.gradient(training_set, hypothesis, i, examples, step_size, weight)
+	return lambda training_set, hypothesis, i, examples: gradient(training_set, hypothesis, i, examples, step_size, weight)
 
 """Requirements for regression type functions:
 Take an argument of two lists, the first list a set of parameters and the second list a set of input variables.
 Use these two lists to perform some function and return a single float.
 """
 
-def linear(list1, list2):
+def linear(params, x):
 	"""Linear hp(x), multiplies a list of parameters and a list of inputs together"""
 	total = 0 
-	for l1, l2 in zip(list1, list2):
-		total += l1 * l2
+	for p, x in zip(params, x):
+		total += p * x
 	return total
 
 def logistic(list1, list2):
@@ -68,7 +107,7 @@ def logistic(list1, list2):
 	explin = exp(-1 * linear(list1, list2))
 	return (explin / (explin + 1))
 
-#TODO batch should be part of batch_gradient_descent, not general regression
+#TODO batch size should be an argument of the gradient descent function, not the regression itself
 def general(training_set, 
 			num_steps=100, 
 			batch=50,
@@ -88,19 +127,17 @@ def general(training_set,
 	log_level -- amount of stuff to log
 	log_frequency -- will log every log_frequency steps
 	"""
-	#TODO doesn't handly intercepts properly, padding ones doesn't work
-	#training_set.pad_ones()
+	training_set.pad_ones()
 	params = [0] * training_set.get_num_features()
 
 	hypothesis = lambda x: regression_function(params, x)
-	for step in range(num_steps):
+	for step in range(num_steps - 1):
 
 		#get a batch of random training examples to train with
 		#TODO there are probably better ways of doing this
 		examples = []
 		for d in range(batch):
 			examples.append(randint(0, training_set.size() - 1))
-
 		for i in range(training_set.get_num_features()):
 			#update gradient
 			#always addition, update rule should return the correct sign
