@@ -36,9 +36,33 @@ class TrainingExample:
 		return (str(self.get_all_inputs()) + " " + str(self.get_output()))
 
 class TrainingSet:
-	#should be a list of training examples
-	def __init__(self, x):
-		self.examples = x;
+	#generate one automatically
+	def __init__(self, function, num_points=None, low=1, high=100, variance = .05):
+		"""If they give a list of training examples, just add that first"""
+		if (isinstance(function, list)):
+			self.examples = function
+		"""Return a training set of a specific function
+
+		Arguments:
+		function -- function to generate, can take any number of args and returns a float
+		num_points -- number of points to generate
+		low -- low bound
+		high -- high bound
+		variance -- randomness in the data
+
+		NOT SUITABLE FOR DOCTEST, CONTAINS RANDOM DATA
+		!>>> ts = ml.generate_training_set(lambda x: 4*x, 3, -10, 10, variance=0) 
+		!>>> str(ts)
+		'[5.664584629276554] 22.658338517106216;[-0.16071175241091495] -0.6428470096436598;[-8.627610821082763] -34.51044328433105;'
+		"""
+		self.examples = []
+		num_features = function.__code__.co_argcount	
+		for i in range(num_points):
+			x = []
+			for f in range(num_features):
+				x.append(random.uniform(low, high))
+			y = function(*x) + random.uniform(-variance * (num_points / num_features), variance * (num_points / num_features));
+			self.add(TrainingExample(x, y))
 	#padding ones makes the y-intercept easier later
 	def pad_ones(self):
 		for i in self.examples:
@@ -85,31 +109,6 @@ class TrainingSet:
 				num = -i
 			batch.append(get_example(i + rand))
 		return batch
-	@staticmethod
-	def generate(function, num_points, low=1, high=100, variance = .05):
-		"""Return a training set of a specific function
-
-		Arguments:
-		function -- function to generate, can take any number of args and returns a float
-		num_points -- number of points to generate
-		low -- low bound
-		high -- high bound
-		variance -- randomness in the data
-
-		NOT SUITABLE FOR DOCTEST, CONTAINS RANDOM DATA
-		!>>> ts = ml.generate_training_set(lambda x: 4*x, 3, -10, 10, variance=0) 
-		!>>> str(ts)
-		'[5.664584629276554] 22.658338517106216;[-0.16071175241091495] -0.6428470096436598;[-8.627610821082763] -34.51044328433105;'
-		"""
-		num_features = function.__code__.co_argcount	
-		ts = TrainingSet([])
-		for i in range(num_points):
-			x = []
-			for f in range(num_features):
-				x.append(random.uniform(low, high))
-			y = function(*x) + random.uniform(-variance * (num_points / num_features), variance * (num_points / num_features));
-			ts.add(TrainingExample(x, y))
-		return ts
 				
 def mean(numbers):
 	return (float(sum(numbers)) / max(len(numbers), 1))
