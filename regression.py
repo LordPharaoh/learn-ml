@@ -16,8 +16,7 @@ def gradient(training_set, hypothesis, feature, examples, step_size, weight_func
     """Return the gradient of a number of examples in the training set with a given hypothesis function, step size, and weight.
     
     Keyword Arguments:
-    training_set -- the training set
-    hypothesis -- the prediction function. Should take in a list of inputs and return a prediction.
+    training_set -- the training set hypothesis -- the prediction function. Should take in a list of inputs and return a prediction.
     feature -- the feature number 
     examples -- a list of examples in the training set to try it on; e.g. [1, 3, 7] will try it on the 1st, 3rd, and 7th training examples
     step_size -- constant to reduce the gradient by
@@ -104,7 +103,7 @@ def linear(params, x):
 
 def logistic(list1, list2):
 	"""Logistic hp(x), do the linear thing and then exp that. (exp(lin)) / (exp(lin)+1)"""
-	explin = exp(-1 * linear(list1, list2))
+	explin = exp(1 * linear(list1, list2))
 	return (explin / (explin + 1))
 
 #TODO batch size should be an argument of the gradient descent function, not the regression itself
