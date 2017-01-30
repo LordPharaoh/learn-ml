@@ -4,7 +4,7 @@ import common as ml
 #TODO gradient can be optimized by taking it once, multiplying by each feature, and then returning the whole thing as a list
 #contd. Getting the mean of the whole thing seemed to work, but it may give bad results with large training sets and small batch sizes
 #so basically have an option to return a list of gradients for all features, this will be faster too
-def gradient(training_set, hypothesis, feature, examples, step_size, weight_function=lambda xi, feature: 1):
+def gradient(training_set, hypothesis, feature, examples, step_size, weight_function=lambda xi):
     """Return the gradient of a number of examples in the training set with a given hypothesis function, step size, and weight.
     
     Keyword Arguments:
@@ -21,7 +21,7 @@ def gradient(training_set, hypothesis, feature, examples, step_size, weight_func
 	>>> import regression
     >>> ts = ml.TrainingSet.generate(lambda x: 4*x, 10, -10, 10, variance=0)
     >>> hypothesis = lambda x: 3 * x[0]
-    >>> regression.gradient(ts, hypothesis, 0, range(ts.size() - 1), .1)
+    >>> gradient.gradient(ts, hypothesis, 0, range(ts.size() - 1), .1)
     -3.4423139184132863
     >>> hypothesis = lambda x: 4 * x[0]
     >>> regression.gradient(ts, hypothesis, 0, range(ts.size() - 1), .1)
@@ -32,7 +32,20 @@ def gradient(training_set, hypothesis, feature, examples, step_size, weight_func
     total = 0
     for i in examples:
         grad = hypothesis(training_set.get_input(i)) - training_set.get_output(i)
-        total += (grad * training_set.get_input_feature(i, feature) * weight_function(training_set.get_input(i), feature) * step_size)
+        total -= (grad * training_set.get_input_feature(i, feature) * weight_function(training_set.get_input(i), feature) * step_size)
+    #don't divide by zero, the answer will be 0 anyway, just divide by one
+    return (total/max(len(examples), 1))
+
+def softmax_gradient(training_set, hypothesis, feature, examples, step_size, weight_function=lambda xi):
+   """ Gradient for softmax """
+
+    total = 0
+    for i in examples:
+		for j in range(len(
+			h = hypothesis(training_set.get_input(i)) 
+			y = training_set.get_output(i)
+			grad = 0 if h == y else -1 if 
+			total -= (grad * training_set.get_input_feature(i, feature) * weight_function(training_set.get_input(i), feature) * step_size)
     #don't divide by zero, the answer will be 0 anyway, just divide by one
     return (total/max(len(examples), 1))
     
@@ -46,12 +59,12 @@ def batch_descent(step_size=.01, weight=lambda x: 1):
 	"""Returns batch gradient descent function with given step size
 	The gradient function accepts a training set, hypothesis function, a feature, and a list of number examples
 	"""
-	return lambda training_set, hypothesis, i, examples: -gradient(training_set, hypothesis, i, examples, step_size, weight)
+	return lambda training_set, hypothesis, i, examples: gradient(training_set, hypothesis, i, examples, step_size, weight)
 
 def batch_ascent(step_size=.01, weight=lambda x:1,):
 	"""Returns batch gradient descent function with given step size
 	The gradient function accepts a training set, hypothesis function, a feature, and a list of number examples
 	"""
-	return lambda training_set, hypothesis, i, examples: gradient(training_set, hypothesis, i, examples, step_size, weight)
+	return lambda training_set, hypothesis, i, examples: -gradient(training_set, hypothesis, i, examples, step_size, weight)
 
 
