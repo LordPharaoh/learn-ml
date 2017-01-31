@@ -61,6 +61,7 @@ class TrainingSet:
 		"""
 		self.examples = []
 		num_features = function.__code__.co_argcount	
+		self.equation = function
 		for i in range(num_points):
 			x = []
 			for f in range(num_features):
@@ -98,8 +99,15 @@ class TrainingSet:
 	def get_output(self, num):
 		return self.examples[num].get_output()
 	#plot one dimension
-	def plot(self, num=0, symbol="b*"):
+	def plot(self, num=0, scale=1, symbol="b*"):
 		plt.plot(self.get_plottable_input(num), self.get_plottable_output(), symbol)
+		x = []
+		y = []
+		num_features = self.equation.__code__.co_argcount
+		for i in range(round((self.domain(num)[1] - self.domain(num)[0])/scale)):
+			x.append(i * scale + self.domain(num)[0])
+			y.append(self.equation(x[-1]))
+		plt.plot(x, y, "b-")
 	def __str__(self):
 		stb = ""
 		for i in self.examples:
@@ -135,32 +143,6 @@ class TrainingSet:
 def mean(numbers):
 	return (float(sum(numbers)) / max(len(numbers), 1))
 
-#TODO plot_hypothesis and plot_function are super similar and should be one thing
-#TODO the whole hypothesis-function thing is a mess, they should be able to handle list, training set, and comma-seperated arguments intelligently
-#TODO should handle choosing which feature to graph and fill in values for the other features
-#just have like one plot function and let it intelligently deal with all scenarios
-def plot_hypothesis(hyp, low=1, high=100, scale=1, symbol="r-"): 
-	x = []
-	y = []
-	num_features = hyp.__code__.co_argcount
-	times = round(((high - low) / scale))
-	for i in range(times):
-		x.append(i * scale + low)
-		y.append(hyp([x[-1], 1]))
-	plt.plot(x, y, symbol)
-	
-def plot_function(equation, low=1, high=100, scale=1, symbol="r-"):
-	x = []
-	y = []
-	num_features = equation.__code__.co_argcount
-	for i in range(round((high - low)/scale)):
-		x.append(i * scale + low)
-		y.append(equation(x[-1]))
-	plt.plot(x, y, symbol)
-
-def plot_list(list1, list2, symbol="b*"):
-	plt.plot(list1, list2, symbol)
-	
 def show_plot():
 	plt.draw()
 	plt.show()

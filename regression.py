@@ -58,7 +58,10 @@ class Regression:
 		return 1
 
 
-
+	def set_local_weight(self, step_size, x, bandwidth=1):
+		self.update_rule = gradient.batch_descent(step_size, Regression.generate_local_weight(x, bandwidth))
+		
+		
 	#TODO batch size should be an argument of the gradient descent function, not the regression itself
 	def general(self,
 				num_steps=100, 
@@ -120,5 +123,6 @@ class Regression:
 			vec[i] = x[-1]
 			y.append(self.hypothesis(vec))
 		ml.plt.plot(x, y, "r-")
+	
 	
 
