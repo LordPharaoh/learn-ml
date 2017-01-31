@@ -4,7 +4,7 @@ import common as ml
 #TODO gradient can be optimized by taking it once, multiplying by each feature, and then returning the whole thing as a list
 #contd. Getting the mean of the whole thing seemed to work, but it may give bad results with large training sets and small batch sizes
 #so basically have an option to return a list of gradients for all features, this will be faster too
-def gradient(training_set, hypothesis, feature, examples, step_size, weight_function=lambda xi):
+def gradient(training_set, hypothesis, feature, examples, step_size, weight_function=lambda xi,yi: x):
     """Return the gradient of a number of examples in the training set with a given hypothesis function, step size, and weight.
     
     Keyword Arguments:
@@ -36,26 +36,26 @@ def gradient(training_set, hypothesis, feature, examples, step_size, weight_func
     #don't divide by zero, the answer will be 0 anyway, just divide by one
     return (total/max(len(examples), 1))
 
-def softmax_gradient(training_set, hypothesis, feature, examples, step_size, weight_function=lambda xi):
-   """ Gradient for softmax """
-
-    total = 0
-    for i in examples:
-		for j in range(len(
+def softmax_gradient(training_set, hypothesis, feature, examples, step_size, weight_function=lambda xi: x):
+	""" Gradient for softmax """
+"""
+	total = 0
+	for i in examples:
+		for j in range(len(examples)):
 			h = hypothesis(training_set.get_input(i)) 
 			y = training_set.get_output(i)
 			grad = 0 if h == y else -1 if 
 			total -= (grad * training_set.get_input_feature(i, feature) * weight_function(training_set.get_input(i), feature) * step_size)
     #don't divide by zero, the answer will be 0 anyway, just divide by one
     return (total/max(len(examples), 1))
-    
+"""  
 """Requirements for descent functions
 Take four arguments: training_set, hypothesis, feature number, and a numerical list of examples.
 Return a float change value.
 
 A descent function generator should return such a function.
 """
-def batch_descent(step_size=.01, weight=lambda x: 1):
+def batch_descent(step_size=.01, weight=lambda *args: 1):
 	"""Returns batch gradient descent function with given step size
 	The gradient function accepts a training set, hypothesis function, a feature, and a list of number examples
 	"""

@@ -19,6 +19,9 @@ def log(s, level, state=LOG_STATE):
 
 class TrainingExample:
 	#should be a list of features and an output
+	x = []
+	y = []
+
 	def __init__(self, x, y):
 		self.x = x;
 		self.y = y;
@@ -39,8 +42,9 @@ class TrainingSet:
 	#generate one automatically
 	def __init__(self, function, num_points=None, low=1, high=100, variance = .05):
 		"""If they give a list of training examples, just add that first"""
-		if (isinstance(function, list)):
+		if (isinstance(function, list) and num_points == None):
 			self.examples = function
+			return
 		"""Return a training set of a specific function
 
 		Arguments:
@@ -109,6 +113,24 @@ class TrainingSet:
 				num = -i
 			batch.append(get_example(i + rand))
 		return batch
+	def domain(self, i):
+		""" Returns domain, or a tuple with the min value of x at 0 and max at 1 """
+		smallest = self.examples[0].get_input(i)
+		biggest = self.examples[0].get_input(i)
+		for e in self.examples:
+			if e.get_input(i) > biggest: biggest = e.get_input(i)
+			if e.get_input(i) < smallest: smallest = e.get_input(i)
+		return (smallest, biggest)
+	def range(self):
+		""" Returns range, or a tuple with the min value of y at 0 and max at 1 """
+		smallest = self.examples.get_output(i)
+		biggest = self.examples.get_output(i)
+		for e in self.examples:
+			if e.get_output(i) > biggest: biggest = e.get_output(i)
+			if e.get_output(i) < smallest: smallest = e.get_output(i)
+		return (smallest, biggest)
+		
+		
 				
 def mean(numbers):
 	return (float(sum(numbers)) / max(len(numbers), 1))
