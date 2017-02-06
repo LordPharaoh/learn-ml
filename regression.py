@@ -3,7 +3,7 @@ import gradient
 from random import randint
 from math import exp
 
-class Regression:
+class Regression(common.Learn):
 
 	"""Requirements for regression type functions:
 	Take an argument of two lists, the first list a set of parameters and the second list a set of input variables.
@@ -18,11 +18,7 @@ class Regression:
 		return total
 
 	def __init__(self, train):
-		""" train: training set to regress """
-		self.ts = train
-		self.parameters = []
-		self.hypothesis = lambda x: x	
-		self.update_rule = gradient.batch_descent()
+		super(Regression, self).init(train)
 		self.regression_function = self.linear_function
 
 	def lms_error(self):
@@ -30,37 +26,6 @@ class Regression:
 		for i in range(self.ts.size()):
 			total += (self.hypothesis(self.ts.get_input(i)) - self.ts.get_output(i)) ** 2
 		return total / (2 * self.ts.size())
-		
-	"""Requirements for weight functions
-	A function which takes two arguments: an x value and a feature number
-	The function should return a float weight value
-
-	A weight function generator should return such a function
-	"""
-	@staticmethod
-	def generate_local_weight(self, x, bandwidth=1):
-		#TODO locally weighted regression is totally broken
-		"""Returns a weight function for a given x input and a bandwidth.
-		
-		Keyword Arguments:
-		x -- location to find line fpr
-		bandwidth -- tau, controls width of bell
-
-		Return Keyword Arguments:
-		xi -- list of numbers, input from training set
-		feature -- feature number being tested
-		"""
-		weight = lambda xi, feature: exp((-(xi[feature] - x)**2)/(2*bandwidth**2))
-		return weight
-
-	@staticmethod
-	def constant_weight(*args):
-		return 1
-
-
-	def set_local_weight(self, step_size, x, bandwidth=1):
-		self.update_rule = gradient.batch_descent(step_size, Regression.generate_local_weight(x, bandwidth))
-		
 		
 	#TODO batch size should be an argument of the gradient descent function, not the regression itself
 	def general(self,
@@ -104,25 +69,6 @@ class Regression:
 			if step % log_frequency == 0:
 				ml.log("Hypothesis " + str(self.params), ml.V_VERBOSE, log_level)
 
-	def test(x):
-		return self.hypothesis(x)
-	def get_params():
-		return self.params
-	def plot(self, i, scale=1):
-		""" Plots ith feature with training set """	
-		self.ts.plot(i)
-		bounds = self.ts.domain(i)
-		x = [] 
-		y = []
-		num_features = self.hypothesis.__code__.co_argcount
-		times = round(((bounds[1] - bounds[0]) / scale))
-		for j in range(times):
-			x.append(j * scale + bounds[0])
-			vec = [0] * (num_features + 1)
-			vec[-1] = 1
-			vec[i] = x[-1]
-			y.append(self.hypothesis(vec))
-		ml.plt.plot(x, y, "r-")
 	
 	
 

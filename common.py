@@ -138,6 +138,67 @@ class TrainingSet:
 			if e.get_output(i) < smallest: smallest = e.get_output(i)
 		return (smallest, biggest)
 		
+class Learn:
+	"""Abstract class for learning algorithms
+	"""	
+	def __init__(self, train):
+		"""train: training set to regress"""
+		self.ts = train
+		self.parameters = []
+		self.hypothesis = lambda x: x	
+		self.update_rule = gradient.batch_descent()
+
+	"""Requirements for weight functions
+	A function which takes two arguments: an x value and a feature number
+	The function should return a float weight value
+
+	A weight function generator should return such a function
+	"""
+	@staticmethod
+	def generate_local_weight(self, x, bandwidth=1):
+		#TODO locally weighted regression is totally broken
+		"""Returns a weight function for a given x input and a bandwidth.
+		
+		Keyword Arguments:
+		x -- location to find line fpr
+		bandwidth -- tau, controls width of bell
+
+		Return Keyword Arguments:
+		xi -- list of numbers, input from training set
+		feature -- feature number being tested
+		"""
+		weight = lambda xi, feature: exp((-(xi[feature] - x)**2)/(2*bandwidth**2))
+		return weight
+
+	@staticmethod
+	def constant_weight(*args):
+		return 1
+	def set_local_weight(self, step_size, x, bandwidth=1):
+		self.update_rule = gradient.batch_descent(step_size, Regression.generate_local_weight(x, bandwidth))
+	
+	def test(x):
+		return self.hypothesis(x)
+	def get_params():
+		return self.params
+	def plot(self, i, scale=1):
+		""" Plots ith feature with training set """	
+		self.ts.plot(i)
+		bounds = self.ts.domain(i)
+		x = [] 
+		y = []
+		num_features = self.hypothesis.__code__.co_argcount
+		times = round(((bounds[1] - bounds[0]) / scale))
+		for j in range(times):
+			x.append(j * scale + bounds[0])
+			vec = [0] * (num_features + 1)
+			vec[-1] = 1
+			vec[i] = x[-1]
+			y.append(self.hypothesis(vec))
+		ml.plt.plot(x, y, "r-")
+		
+
+
+		
 		
 				
 def mean(numbers):
@@ -145,5 +206,4 @@ def mean(numbers):
 
 def show_plot():
 	plt.draw()
-	plt.show()
-		
+	plt.show()		
