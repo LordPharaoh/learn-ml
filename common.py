@@ -1,5 +1,6 @@
 from random import randint
 import random
+import gradient
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -40,9 +41,9 @@ class TrainingExample:
 
 class TrainingSet:
 	#generate one automatically
-	def __init__(self, function, num_points=None, low=1, high=100, variance = .05):
+	def __init__(self, function, num_points=30, low=-10, high=10, variance = .05):
 		"""If they give a list of training examples, just add that first"""
-		if (isinstance(function, list) and num_points == None):
+		if (isinstance(function, list)):
 			self.examples = function
 			return
 		"""Return a training set of a specific function
@@ -178,7 +179,7 @@ class Learn:
 	
 	def test(x):
 		return self.hypothesis(x)
-	def get_params():
+	def get_params(self):
 		return self.params
 	def plot(self, i, scale=1):
 		""" Plots ith feature with training set """	
@@ -194,7 +195,7 @@ class Learn:
 			vec[-1] = 1
 			vec[i] = x[-1]
 			y.append(self.hypothesis(vec))
-		ml.plt.plot(x, y, "r-")
+		plt.plot(x, y, "r-")
 		
 
 

@@ -3,7 +3,7 @@ import gradient
 from random import randint
 from math import exp
 
-class Regression(common.Learn):
+class Regression(ml.Learn):
 
 	"""Requirements for regression type functions:
 	Take an argument of two lists, the first list a set of parameters and the second list a set of input variables.
@@ -18,7 +18,7 @@ class Regression(common.Learn):
 		return total
 
 	def __init__(self, train):
-		super(Regression, self).init(train)
+		super().__init__(train)
 		self.regression_function = self.linear_function
 
 	def lms_error(self):
