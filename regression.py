@@ -20,8 +20,9 @@ class Regression(ml.Learn):
 	def __init__(self, train):
 		super().__init__(train)
 		self.regression_function = self.linear_function
+		self.update_rule = gradient.batch_descent()
 
-	def lms_error(self):
+	def error(self):
 		total = 0;
 		for i in range(self.ts.size()):
 			total += (self.hypothesis(self.ts.get_input(i)) - self.ts.get_output(i)) ** 2
@@ -59,6 +60,7 @@ class Regression(ml.Learn):
 			for i in range(self.ts.get_num_features()):
 				#update gradient
 				#always addition, update rule should return the correct sign
+				#TODO a self function shuldn't have to input its own training set and hypothesis
 				self.params[i] += self.update_rule(self.ts, self.hypothesis, i, examples)
 
 			self.hypothesis = lambda x: self.regression_function(x)
