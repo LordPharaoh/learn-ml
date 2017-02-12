@@ -177,8 +177,11 @@ class Learn:
 	def set_local_weight(self, step_size, x, bandwidth=1):
 		self.update_rule = gradient.batch_descent(step_size, Regression.generate_local_weight(x, bandwidth))
 	
-	def test(x):
+	def evaluate(x):
 		return self.hypothesis(x)
+	def test():
+		raise NotImplementedError("not implemented in child class")
+		return 0
 	def get_params(self):
 		return self.params
 	def plot(self, i, scale=1):

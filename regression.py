@@ -64,13 +64,21 @@ class Regression(ml.Learn):
 				self.params[i] += self.update_rule(self.ts, self.hypothesis, i, examples)
 
 			self.hypothesis = lambda x: self.regression_function(x)
+	@staticmethod
+	def test(numsteps=500, batch=50):
+		xm = randint(0, 20)	
+		ym = randint(0, 20)	
+		zm = randint(0, 20)	
+		m = randint(0, 20)
+		ts = ml.TrainingSet(lambda x, y, z: xm*x + ym*y + zm*z + m)
+		r = Regression(ts)
+		r.general(numsteps, batch)
+		p = r.get_params()
+		print("Given params: " + str([xm, ym, zm, m]) + " Output params: " + str(p))
+		error = lambda x, xe: abs((x - xe)/x)
+		toterr = ((error(xm, p[0]) + error(ym, p[1]) + error(zm, p[2])) + error(m, p[3]))* 25
+		print("Percent error after " + str(numsteps) + " steps and a batch size of " + str(batch) + " = " + str(toterr))
+		return toterr
 
-			#log stuff
-			if step % log_frequency == 0:
-				ml.log("Error " + str(step) + ": " + str(self.lms_error()), ml.V_VERBOSE, log_level)
-			if step % log_frequency == 0:
-				ml.log("Hypothesis " + str(self.params), ml.V_VERBOSE, log_level)
-
-	
 	
 

@@ -1,8 +1,7 @@
-import regression as r
 import common as ml
 
 class Classification(ml.Learn):
-	#TODO remove, logistic is subclass of softmax
+	#TODO remove, logistic is a subset of softmax
 	def logistic(list1, list2):
 		"""Logistic hp(x), do the linear thing and then exp that. (exp(lin)) / (exp(lin)+1)"""
 		explin = exp(1 * r.linear(list1, list2))
@@ -26,6 +25,7 @@ class Classification(ml.Learn):
 
 	def __init__(self, train):
 		#logistic is technically a subclass of softmax
+		super().__init__(train)
 		self.regression_function = self.softmax
 	def error(self):
 		"""Return error of function"""
