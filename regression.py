@@ -66,6 +66,7 @@ class Regression(ml.Learn):
 			self.hypothesis = lambda x: self.regression_function(x)
 	@staticmethod
 	def test(numsteps=500, batch=50):
+		"""Prints results of a test and returns percent error"""
 		xm = randint(0, 20)	
 		ym = randint(0, 20)	
 		zm = randint(0, 20)	
