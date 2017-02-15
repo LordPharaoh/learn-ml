@@ -138,7 +138,18 @@ class TrainingSet:
 			if e.get_output(i) > biggest: biggest = e.get_output(i)
 			if e.get_output(i) < smallest: smallest = e.get_output(i)
 		return (smallest, biggest)
-		
+	def get_num_classes(self):
+		classes = []
+		num_classes = 0
+		for i in self.examples:
+			#if its not an int and greater than 0 (meaning class) then stop
+			if (not float(i.get_output()).is_integer()) or i.get_output() < 0:
+				raise TypeError("Classification requires whole-number classes that are greater than 0.")
+				#is it really necessary to return after raising an error? Who knows
+				return
+		#add one for 0
+		return max(self.get_plottable_output()) + 1
+
 class Learn:
 	"""Abstract class for learning algorithms
 	"""	
@@ -147,7 +158,6 @@ class Learn:
 		self.ts = train
 		self.parameters = []
 		self.hypothesis = lambda x: x	
-		self.update_rule = gradient.batch_descent()
 
 	"""Requirements for weight functions
 	A function which takes two arguments: an x value and a feature number

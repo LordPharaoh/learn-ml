@@ -2,9 +2,7 @@ import common as ml
 import gradient 
 from random import randint
 from math import exp
-
-class Regression(ml.Learn):
-
+class Regression(ml.Learn): 
 	"""Requirements for regression type functions:
 	Take an argument of two lists, the first list a set of parameters and the second list a set of input variables.
 	Use these two lists to perform some function and return a single float.
@@ -29,11 +27,7 @@ class Regression(ml.Learn):
 		return total / (2 * self.ts.size())
 		
 	#TODO batch size should be an argument of the gradient descent function, not the regression itself
-	def general(self,
-				num_steps=100, 
-				batch=50,
-				log_level=ml.NORMAL, 
-				log_frequency=100):
+	def general(self, num_steps=100, batch=50):
 		"""Returns a function that accepts a list of inputs and returns a predicted output in accord with given data
 
 		Arguments:
@@ -64,6 +58,7 @@ class Regression(ml.Learn):
 				self.params[i] += self.update_rule(self.ts, self.hypothesis, i, examples)
 
 			self.hypothesis = lambda x: self.regression_function(x)
+
 	@staticmethod
 	def test(numsteps=500, batch=50):
 		"""Prints results of a test and returns percent error"""
