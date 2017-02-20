@@ -60,7 +60,7 @@ class Classification(ml.Learn):
 		for step in range(num_steps - 1):
 			#don't have this line for stochastic
 			modify_params = self.params[:]
-			for class_ in range(int(self.ts.get_num_classes() - 1)):
+			for class_ in range(int(self.ts.get_num_classes())):
 				for feature in range(self.ts.get_num_features()):
 					modify_params[class_][feature] += self.update_rule(class_, feature, examples)
 			self.params = modify_params;

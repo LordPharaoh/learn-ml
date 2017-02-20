@@ -2,7 +2,6 @@ from random import randint
 import random
 import gradient
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 
 COLORS = ("b", "g", "c", "y", "m", "k") 
 
@@ -112,7 +111,7 @@ class TrainingSet:
 	def __str__(self):
 		stb = ""
 		for i in self.examples:
-			stb += str(i) + ";"
+			stb += str(i) + "\n"
 		return stb
 	def get_batch(self, num):
 		batch = []
@@ -148,7 +147,7 @@ class TrainingSet:
 				#is it really necessary to return after raising an error? Who knows
 				return
 		#add one for 0
-		return max(self.get_plottable_output()) + 1
+		return int(max(self.get_plottable_output()) + 1)
 
 class Learn:
 	"""Abstract class for learning algorithms
@@ -187,7 +186,7 @@ class Learn:
 	def set_local_weight(self, step_size, x, bandwidth=1):
 		self.update_rule = gradient.batch_descent(step_size, Regression.generate_local_weight(x, bandwidth))
 	
-	def evaluate(x):
+	def evaluate(self, x):
 		return self.hypothesis(x)
 	def test():
 		raise NotImplementedError("not implemented in child class")
