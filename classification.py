@@ -15,14 +15,21 @@ class Classification(ml.Learn):
 		return total
 
 	def softmax(self, inputs, outcome=None):
+		#multiply by 1/total to regularize parameters to add up to 1
+		reg = 0
+		for i in self.params:
+			explin = exp(1 * self.linear(i, inputs))
+			reg += explin
+		reg = reg ** -1
+
 		if (outcome != None and outcome < len(self.params)):
 			explin = exp(1 * self.linear(self.params[outcome], inputs))
-			return (explin / (explin + 1))
+			return reg * explin
 		else:
 			ret = []
 			for i in self.params:
 				explin = exp(1 * self.linear(i, inputs))
-				ret.append(explin / (explin + 1))
+				ret.append(reg * explin)
 			return ret
 	#TODO the whole examples thing isn't object oriented, there should be a get_random_batch method in TrainingSet that returns a smaller TrainingSet
 	def update_rule(self, class_, feature, examples):
@@ -44,6 +51,7 @@ class Classification(ml.Learn):
 		self.hypothesis = self.softmax
 	def error(self):
 		"""Return error of function"""
+		#TODO implement
 		return 0
 	def general(self, num_steps=100, batch=50):
 		self.ts.pad_ones()
