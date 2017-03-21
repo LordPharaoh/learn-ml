@@ -42,9 +42,9 @@ class Classification(ml.Learn):
 			grad += self.ts.get_input_feature(i, feature) * diff
 		return (grad/max(len(examples), 1))
 
-	def __init__(self, train):
+	def __init__(self, train, order=1):
 		#logistic is technically a subclass of softmax
-		super().__init__(train)
+		super().__init__(train, order)
 		self.regression_function = self.softmax
 		self.step_size = .01
 		self.params = []
@@ -54,7 +54,6 @@ class Classification(ml.Learn):
 		#TODO implement
 		return 0
 	def general(self, num_steps=100, batch=50):
-		self.ts.pad_ones()
 		#first index is class, second one is feature
 		#params[class_][feature]
 		for i in range(int(self.ts.get_num_classes())):

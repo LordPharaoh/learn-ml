@@ -15,8 +15,8 @@ class Regression(ml.Learn):
 			total += p * x
 		return total
 
-	def __init__(self, train):
-		super().__init__(train)
+	def __init__(self, train, order=1):
+		super().__init__(train, order)
 		self.regression_function = self.linear_function
 		self.update_rule = gradient.batch_descent()
 
@@ -40,7 +40,6 @@ class Regression(ml.Learn):
 		log_level -- amount of stuff to log
 		log_frequency -- will log every log_frequency steps
 		"""
-		self.ts.pad_ones()
 		self.params = [0] * self.ts.get_num_features()
 
 		self.hypothesis = lambda x: self.regression_function(x)

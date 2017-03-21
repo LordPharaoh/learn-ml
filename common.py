@@ -1,8 +1,7 @@
 from random import randint
 import random
-import gradient
-import matplotlib.pyplot as plt
-
+import gradient 
+import matplotlib.pyplot as plt 
 COLORS = ("b", "g", "c", "y", "m", "k") 
 
 QUIET = 0
@@ -26,15 +25,22 @@ class TrainingExample:
 		self.x = x;
 		self.y = y;
 	def get_all_inputs(self):
+		#deprecated but I don't wanna break anything
 		return self.x
-	def get_input(self, num):
+	def get_input(self, num=None):
+		if num is None: return self.x
 		return self.x[num]
 	def get_output(self):
 		return self.y
 	def size(self):
 		return len(self.x)
-	def pad_one(self):
-		self.x.append(1)
+	def order(self, o):
+		newx = []
+		newx.append(1)
+		for i in range(1, o + 1):
+			for xi in self.x:
+				newx.append(xi ** i)
+		self.x = newx
 	def __str__(self):
 		return (str(self.get_all_inputs()) + " " + str(self.get_output()))
 
@@ -69,9 +75,9 @@ class TrainingSet:
 			y = function(*x) + random.uniform(-variance * (num_points / num_features), variance * (num_points / num_features));
 			self.add(TrainingExample(x, y))
 	#padding ones makes the y-intercept easier later
-	def pad_ones(self):
+	def order(self, o):
 		for i in self.examples:
-			i.pad_one()
+			i.order(o)
 	def size(self):
 		return len(self.examples)
 	#get one feature of x so you can plot it in matplotlib
@@ -152,9 +158,11 @@ class TrainingSet:
 class Learn:
 	"""Abstract class for learning algorithms
 	"""	
-	def __init__(self, train):
+	def __init__(self, train, order=1):
 		"""train: training set to regress"""
 		self.ts = train
+		self.ts.order(order)
+		self.order = order
 		self.parameters = []
 		self.hypothesis = lambda x: x	
 
@@ -186,8 +194,10 @@ class Learn:
 	def set_local_weight(self, step_size, x, bandwidth=1):
 		self.update_rule = gradient.batch_descent(step_size, Regression.generate_local_weight(x, bandwidth))
 	
-	def evaluate(self, x):
-		return self.hypothesis(x)
+	def evaluate(self, *args):
+		te = TrainingExample(args, 0)
+		te.order(self.order)
+		return self.hypothesis(te.get_input())
 	def test():
 		raise NotImplementedError("not implemented in child class")
 		return 0
